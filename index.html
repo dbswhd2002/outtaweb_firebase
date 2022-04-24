@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <link href="login.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="login.js"></script>
+    <meta charset="utf-8">
+    <title>Login</title>
+
+    <!-- 여기까지가 동재 head-->
+    <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.orange-indigo.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
+  
+    
+    
+  
+    <!-- Import and configure the Firebase SDK -->
+    <!-- These scripts are made available when the app is served or deployed on Firebase Hosting -->
+    <!-- If you do not serve/host your project using Firebase Hosting see https://firebase.google.com/docs/web/setup -->
+    <script src="/__/firebase/9.6.7/firebase-app-compat.js"></script>
+    <script src="/__/firebase/9.6.7/firebase-auth-compat.js"></script>
+    <script src="/__/firebase/init.js"></script>
+  
+    <script type="text/javascript">
+  
+      /**
+       * Handles the sign in button press.
+       */
+      function toggleSignIn() {
+        if (firebase.auth().currentUser) {
+          firebase.auth().signOut();
+        } else {
+          var email = document.getElementById('email').value;
+          var password = document.getElementById('password').value;
+          if (email.length < 4) {
+            alert('Please enter an email address.');
+            return;
+          }
+          if (password.length < 4) {
+            alert('Please enter a password.');
+            return;
+          }
+          // Sign in with email and pass.
+          firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
+            // Handle Errors here.
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            if (errorCode === 'auth/wrong-password') {
+              alert('Wrong password.');
+            } else {
+              alert(errorMessage);
+            }
+            console.log(error);
+            document.getElementById('quickstart-sign-in').disabled = false;
+          });
+        }
+        document.getElementById('quickstart-sign-in').disabled = true;
+      }
+  
+      /**
+       * Handles the sign up button press.
+       */
+      function handleSignUp() {
+        var email = document.getElementById('email').value;
+        var password = document.getElementById('password').value;
+        if (email.length < 4) {
+          alert('Please enter an email address.');
+          return;
+        }
+        if (password.length < 4) {
+          alert('Please enter a password.');
+          return;
+        }
+        // Create user with email and pass.
+        firebase.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
+          // Handle Errors here.
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          if (errorCode == 'auth/weak-password') {
+            alert('The password is too weak.');
+          } else {
+            alert(errorMessage);
+          }
+          console.log(error);
+        });
+      }
+  
+      /**
+       * Sends an email verification to the user.
+       */
+      function sendEmailVerification() {
+        firebase.auth().currentUser.sendEmailVerification().then(function() {
+          // Email Verification sent!
+          alert('인증 메일을 보냈습니다!');
+        });
+      }
+  
+      function sendPasswordReset() {
+        var email = document.getElementById('email').value;
+        firebase.auth().sendPasswordResetEmail(email).then(function() {
+          // Password Reset Email Sent!
+          alert('비밀번호 재설정 메일을 보냈습니다!');
+        }).catch(function(error) {
+          // Handle Errors here.
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          if (errorCode == 'auth/invalid-email') {
+            alert(errorMessage);
+          } else if (errorCode == 'auth/user-not-found') {
+            alert(errorMessage);
+          }
+          console.log(error);
+        });
+      }
+  
+      /**
+       * initApp handles setting up UI event listeners and registering Firebase auth listeners:
+       *  - firebase.auth().onAuthStateChanged: This listener is called when the user is signed in or
+       *    out, and that is where we update the UI.
+       */
+      function initApp() {
+        // Listening for auth state changes.
+        firebase.auth().onAuthStateChanged(function(user) {
+          document.getElementById('quickstart-verify-email').disabled = true;
+          if (user) {
+            // User is signed in.
+            var displayName = user.displayName;
+            var email = user.email;
+            var emailVerified = user.emailVerified;
+            var photoURL = user.photoURL;
+            var isAnonymous = user.isAnonymous;
+            var uid = user.uid;
+            var providerData = user.providerData;
+            document.getElementById('quickstart-sign-in-status').value = 'Signed in';
+            document.getElementById('quickstart-sign-in').value = 'Sign out';
+            document.getElementById('quickstart-account-details').textContent = JSON.stringify(user, null, '  ');
+            if (!emailVerified) {
+              document.getElementById('quickstart-verify-email').disabled = false;
+            }
+          } else {
+            // User is signed out.
+            document.getElementById('quickstart-sign-in-status').value = 'Signed out';
+            document.getElementById('quickstart-sign-in').value = 'Sign in';
+            document.getElementById('quickstart-account-details').textContent = 'null';
+          }
+          document.getElementById('quickstart-sign-in').disabled = false;
+        });
+  
+        document.getElementById('quickstart-sign-in').addEventListener('click', toggleSignIn, false);
+        document.getElementById('quickstart-sign-up').addEventListener('click', handleSignUp, false);
+        document.getElementById('quickstart-verify-email').addEventListener('click', sendEmailVerification, false);
+        document.getElementById('quickstart-password-reset').addEventListener('click', sendPasswordReset, false);
+      }
+  
+      window.onload = function() {
+        initApp();
+      };
+    </script>
+  
+      <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "firebase/app"; //"https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+      import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";//"https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+  
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyD51PWy8XoZiLWFK1iRnCDzDqxY_qP-W48",
+        authDomain: "fir-test-8d72f.firebaseapp.com",
+        databaseURL: "https://fir-test-8d72f-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "fir-test-8d72f",
+        storageBucket: "fir-test-8d72f.appspot.com",
+        messagingSenderId: "449988479886",
+        appId: "1:449988479886:web:9cabe037132a3b6bd9f2df",
+        measurementId: "G-Z0NKCT1Z7Q"
+      };
+  
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+      //analytics 쓸꺼면 const analytics = getAnalytics(app);
+    </script>
+  </head>
+
+
+  <body>
+
+    <div class="contain">
+    </div>
+
+    <img src="Frame 4 10.png" style="width:150px; height:49px; top: 160px; left: 885px; position: absolute;">
+
+    <div class="idtext">
+        이메일
+    </div>
+    <!--            name,id = "id" -> name, id= "email"        -->
+    <form>
+        <input type="text" id="email" name="email" placeholder="Email">
+    </form>
+
+    <div class="idtext" style="top: 362px; left:739px;">
+        비밀번호
+    </div>
+
+    <form>
+        <input type="password" name="password" id="password" placeholder="Password">
+    </form>
+
+    <div class="idtext" style="top: 474px; left:739px;">
+        비밀번호 재확인
+    </div>
+
+    <form>
+        <input type="password" name="pwverify" id="pwverify">
+    </form>
+
+    <div class="idtext" style="top: 635px; left:739px;">
+        이름
+    </div>
+
+    <form>
+        <input type="text" name="name" id="name" placeholder="홍길동">
+    </form>
+
+    <div class="idtext" style="top: 747px; left:739px;">
+        생년월일
+    </div>
+
+    <form>
+        <input type="text" name="year" id="year" placeholder="년(4자)">
+        <input type="text" name="month" id="month" placeholder="월">
+        <input type="text" name="day" id="day" placeholder="일">
+    </form>
+
+    <div class="idtext" style="top: 859px; left:739px;">
+        성별
+    </div>
+
+    <form>
+        <select name="gender" id="gender">
+            <option value="" disabled selected>성별</option>
+            <option value="man">남자</option>
+            <option value="woman">여자</option>
+            <option value="none">선택 안함</option>
+        </select>
+    </form>
+<!--
+    <div class="idtext" style="top: 971px; left:739px;">
+        이메일 주소
+    </div>
+
+    <form>
+        <input type="text" name="email" id="email" placeholder="이메일 입력">
+    </form>
+-->
+    <div class="idtext" style="top: 1083px; left:739px;">
+        직책
+    </div>
+
+    <form>
+        <select name="job" id="job">
+            <option value="" disabled selected>직책</option>
+            <option value="student">학생</option>
+            <option value="member">동아리원</option>
+            <option value="autho">관리자</option>
+        </select>
+    </form>
+
+    <div class="idtext" style="top: 1275px; left:739px;">
+        휴대전화
+    </div>
+
+    <form>
+        <input type="text" name="phone" id="phone" placeholder="전화번호 입력">
+        <!--
+        <input type="button" name="receiver" id="receiver" value="인증번호 받기"> 
+        <input type="text" name="num" id="num" placeholder="인증번호 입력">
+        -->
+    </form>
+
+    <div id="checkplz">
+        빈 항목있는지 확인 부탁드립니다.
+    </div>
+
+    <!--        id: sign->qucistart-sign-up, name: sign-> signup            -->
+    <form>
+        <input type="button" id="quickstart-sign-up" name="signup" value="가입하기"> 
+        <input type="button" disabled id="quickstart-sign-in" name="signin" value="로그인"> 
+        <input type="button" disabled id="quickstart-verify-email" name="verify-email" value="메일인증"> 
+        <input type="button" id="quickstart-password-reset" name="verify-email" value="비밀번호 재설정"> 
+    </form>
+
+    <a href = "loginpage.html"> login page 넘어가기 </a>
+
+    <!-- Container where we'll display the user details -->
+    <div class="quickstart-user-details-container">
+      Firebase sign-in status: <span id="quickstart-sign-in-status">Unknown</span>
+      <div>Firebase auth <code>currentUser</code> object value:</div>
+      <pre><code id="quickstart-account-details">null</code></pre>
+    </div>
+  </body>
+
+    
+      
+</html> 

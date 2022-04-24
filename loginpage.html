@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <link href="loginpage.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="loginpage.js"></script>
+    <meta charset="utf-8">
+    <title>Sign In</title>
+  
+    <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.orange-indigo.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
+  
+    
+    <!--         여기까지가 동재 head       -->
+    <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.orange-indigo.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
+  
+    
+    
+  
+    <!-- Import and configure the Firebase SDK -->
+    <!-- These scripts are made available when the app is served or deployed on Firebase Hosting -->
+    <!-- If you do not serve/host your project using Firebase Hosting see https://firebase.google.com/docs/web/setup -->
+    <script src="/__/firebase/9.6.7/firebase-app-compat.js"></script>
+    <script src="/__/firebase/9.6.7/firebase-auth-compat.js"></script>
+    <script src="/__/firebase/init.js"></script>
+  
+    <script type="text/javascript">
+  
+      /**
+       * Handles the sign in button press.
+       */
+      function toggleSignIn() {
+        if (firebase.auth().currentUser) {
+          firebase.auth().signOut();
+        } else {
+          var email = document.getElementById('email').value;
+          var password = document.getElementById('password').value;
+          if (email.length < 4) {
+            alert('Please enter an email address.');
+            return;
+          }
+          if (password.length < 4) {
+            alert('Please enter a password.');
+            return;
+          }
+          // Sign in with email and pass.
+          firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
+            // Handle Errors here.
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            if (errorCode === 'auth/wrong-password') {
+              alert('Wrong password.');
+            } else {
+              alert(errorMessage);
+            }
+            console.log(error);
+            document.getElementById('quickstart-sign-in').disabled = false;
+          });
+        }
+        document.getElementById('quickstart-sign-in').disabled = true;
+      }
+  
+      /**
+       * Handles the sign up button press.
+       */
+      function handleSignUp() {
+        var email = document.getElementById('email').value;
+        var password = document.getElementById('password').value;
+        if (email.length < 4) {
+          alert('Please enter an email address.');
+          return;
+        }
+        if (password.length < 4) {
+          alert('Please enter a password.');
+          return;
+        }
+        // Create user with email and pass.
+        firebase.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
+          // Handle Errors here.
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          if (errorCode == 'auth/weak-password') {
+            alert('The password is too weak.');
+          } else {
+            alert(errorMessage);
+          }
+          console.log(error);
+        });
+      }
+  
+      /**
+       * Sends an email verification to the user.
+       */
+      function sendEmailVerification() {
+        firebase.auth().currentUser.sendEmailVerification().then(function() {
+          // Email Verification sent!
+          alert('인증 메일을 보냈습니다!');
+        });
+      }
+  
+      function sendPasswordReset() {
+        var email = document.getElementById('email').value;
+        firebase.auth().sendPasswordResetEmail(email).then(function() {
+          // Password Reset Email Sent!
+          alert('비밀번호 재설정 메일을 보냈습니다!');
+        }).catch(function(error) {
+          // Handle Errors here.
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          if (errorCode == 'auth/invalid-email') {
+            alert(errorMessage);
+          } else if (errorCode == 'auth/user-not-found') {
+            alert(errorMessage);
+          }
+          console.log(error);
+        });
+      }
+  
+      /**
+       * initApp handles setting up UI event listeners and registering Firebase auth listeners:
+       *  - firebase.auth().onAuthStateChanged: This listener is called when the user is signed in or
+       *    out, and that is where we update the UI.
+       */
+      function initApp() {
+        // Listening for auth state changes.
+        firebase.auth().onAuthStateChanged(function(user) {
+          document.getElementById('quickstart-verify-email').disabled = true;
+          if (user) {
+            // User is signed in.
+            var displayName = user.displayName;
+            var email = user.email;
+            var emailVerified = user.emailVerified;
+            var photoURL = user.photoURL;
+            var isAnonymous = user.isAnonymous;
+            var uid = user.uid;
+            var providerData = user.providerData;
+            document.getElementById('quickstart-sign-in-status').value = 'Signed in';
+            document.getElementById('quickstart-sign-in').value = 'Sign out';
+            document.getElementById('quickstart-account-details').textContent = JSON.stringify(user, null, '  ');
+            if (!emailVerified) {
+              document.getElementById('quickstart-verify-email').disabled = false;
+            }
+          } else {
+            // User is signed out.
+            document.getElementById('quickstart-sign-in-status').value = 'Signed out';
+            document.getElementById('quickstart-sign-in').value = 'Sign in';
+            document.getElementById('quickstart-account-details').textContent = 'null';
+          }
+          document.getElementById('quickstart-sign-in').disabled = false;
+        });
+  
+        document.getElementById('quickstart-sign-in').addEventListener('click', toggleSignIn, false);
+        document.getElementById('quickstart-sign-up').addEventListener('click', handleSignUp, false);
+        document.getElementById('quickstart-verify-email').addEventListener('click', sendEmailVerification, false);
+        document.getElementById('quickstart-password-reset').addEventListener('click', sendPasswordReset, false);
+      }
+  
+      window.onload = function() {
+        initApp();
+      };
+    </script>
+  
+      <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "firebase/app"; //"https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+      import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";//"https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+  
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyD51PWy8XoZiLWFK1iRnCDzDqxY_qP-W48",
+        authDomain: "fir-test-8d72f.firebaseapp.com",
+        databaseURL: "https://fir-test-8d72f-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "fir-test-8d72f",
+        storageBucket: "fir-test-8d72f.appspot.com",
+        messagingSenderId: "449988479886",
+        appId: "1:449988479886:web:9cabe037132a3b6bd9f2df",
+        measurementId: "G-Z0NKCT1Z7Q"
+      };
+  
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+      //analytics 쓸꺼면 const analytics = getAnalytics(app);
+    </script>
+
+
+</head>
+
+
+
+  <body>
+
+    <div class="contain">
+    </div>
+
+    <img src="logo.png" style="width:139px; height:59px; top: 42px; left: 876px; position: absolute;">
+
+    <div class="welcome">
+        Welcome to OUTTA
+    </div>
+
+    <form>
+        <input type="text" name="id" id="id" placeholder="이메일/아이디">
+        <input type="text" name="password" id="password" placeholder="비밀번호">
+        <label><input type="checkbox" name="autologin" value="autologin" id="autologin"><div id="login">자동로그인</div></label>
+    </form>
+
+    <div id="login" style="left:1076px; width:110px;">
+        ID/PASS 찾기
+    </div>
+
+    <form>
+        <input type="button" name="sign" id="sign" value="로그인"> 
+    </form>
+
+    <img src="Vector 7.png" id="line">
+    <div id="method">다른 방법으로 로그인</div>
+    <img src="Vector 7.png" id="line" style="left:1057px;">
+
+    <div id="rectangle"></div>
+    <div id="rectangle" style="left: 898px;"></div>
+    <div id="rectangle" style="left: 1057px;"></div>
+    
+    <img src="pngwing 1.png" style="position:absolute; top: 839px; left: 780px;">
+    <img src="pngwing.png" style="position:absolute; top: 831px; left: 929px;">
+    <img src="image 31.png" style="position:absolute; top: 838px; left: 1096px;">
+
+    <div id="signpath">아직 회원이 아니신가요?  >> 회원가입</div>
+
+
+    <!-- Container where we'll display the user details -->
+    <div class="quickstart-user-details-container">
+        Firebase sign-in status: <span id="quickstart-sign-in-status">Unknown</span>
+        <div>Firebase auth <code>currentUser</code> object value:</div>
+        <pre><code id="quickstart-account-details">null</code></pre>
+      </div>
+
+  </body>
+
+    
+      
+</html>
