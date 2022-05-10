@@ -59,14 +59,15 @@
         //document.getElementById('quickstart-sign-in').disabled = true;
       }
   
-      /**
-       * Handles the sign up button press.
+      /*
+      Handles the sign up button press.
        */
       function handleSignUp() {
-        console.log("Called");
         var email = document.getElementById('email').value;
         var password = document.getElementById('password').value;
         var username = document.getElementById('name').value;
+        var pwverify = document.getElementById('pwverify').value;
+
         if (email.length < 4) {
           alert('Please enter an email address.');
           return;
@@ -75,21 +76,24 @@
           alert('Please enter a password.');
           return;
         }
+        if (password != pwverify) {
+          alert('비밀번호와 재확인 비밀번호가 다릅니다.');
+          return;
+        };
+
         // Create user with email and pass.
-        firebase.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
-          // Handle Errors here.
-          set(ref(database, "users/" + user.uid), {
-          username: username,
-          email: email,
-          //실제로는 보안위하여 비밀번호를 database에 저장하면 안된다. 저장하면 비밀번호 다 보인다. 그러면 불법이다.
-          password: password,
-          admin: 0,
-          });
+        firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then(()=>{
+          alert('메일 인증을 통해 회원 가입을 완료해주세요.');
+          document.getElementById('quickstart-sign-up').value='가입 완료';
+        })
+        .catch(function(error) {
           var errorCode = error.code;
           var errorMessage = error.message;
           if (errorCode == 'auth/weak-password') {
             alert('The password is too weak.');
-          } else {
+          }
+          else {
             alert(errorMessage);
           }
           console.log(error);
@@ -100,6 +104,7 @@
        * Sends an email verification to the user.
        */
       function sendEmailVerification() {
+        console.log('hey');
         firebase.auth().currentUser.sendEmailVerification().then(function() {
           // Email Verification sent!
           alert('인증 메일을 보냈습니다!');
@@ -159,7 +164,7 @@
   
         //document.getElementById('quickstart-sign-in').addEventListener('click', toggleSignIn, false);
         document.getElementById('quickstart-sign-up').addEventListener('click', handleSignUp, false);
-        //document.getElementById('quickstart-verify-email').addEventListener('click', sendEmailVerification, false);
+        document.getElementById('quickstart-verify-email').addEventListener('click', sendEmailVerification, false);
         //document.getElementById('quickstart-password-reset').addEventListener('click', sendPasswordReset, false);
       }
   
@@ -299,10 +304,7 @@
     <form>
         <input type="button" id="quickstart-sign-up" name="signup" value="가입하기"> 
         <input type="button" disabled id="quickstart-verify-email" name="verify-email" value="메일인증"> 
-        <input type="button" id="quickstart-password-reset" name="verify-email" value="비밀번호 재설정"> 
     </form>
-
-    <a href = "new.html"> new page 넘어가기 </a>
 
     <!-- Container where we'll display the user details -->
     <div class="quickstart-user-details-container">

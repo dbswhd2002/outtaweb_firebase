@@ -55,18 +55,28 @@ input::placeholder{
 }
 
 #login{
+    
+    
     position: absolute;
     width: 83px;
     height: 26px;
     left: 779px;
     top: 524px;
 
+    
+}
+
+#quickstart-password-reset{
+    border: 1px solid #4558FF;
+    box-sizing: border-box;
+    border-radius: 5px;
     font-family: 'Noto Sans KR';
     font-style: normal;
     font-weight: 400;
     font-size: 18px;
     line-height: 26px;
     color: #282729;
+    background-color: #4558FF; 
 }
 
 #quickstart-sign-in{
