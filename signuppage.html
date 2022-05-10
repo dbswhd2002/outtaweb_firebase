@@ -1,19 +1,14 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <link href="index.css" rel="stylesheet">
+  <head>
+    <link href="signuppage.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <!-- <script src="loginpage.js"></script> -->
-    <meta charset="utf-8">
-    <title>Sign In</title>
-  
-    <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.orange-indigo.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
-  
     
-    <!--         여기까지가 동재 head       -->
+    <meta charset="utf-8">
+    <title>Login</title>
+
+    <!-- 여기까지가 동재 head-->
     <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.orange-indigo.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
@@ -58,18 +53,20 @@
               alert(errorMessage);
             }
             console.log(error);
-            document.getElementById('quickstart-sign-in').disabled = false;
+            //document.getElementById('quickstart-sign-in').disabled = false;
           });
         }
-        document.getElementById('quickstart-sign-in').disabled = true;
+        //document.getElementById('quickstart-sign-in').disabled = true;
       }
   
       /**
        * Handles the sign up button press.
        */
       function handleSignUp() {
+        console.log("Called");
         var email = document.getElementById('email').value;
         var password = document.getElementById('password').value;
+        var username = document.getElementById('name').value;
         if (email.length < 4) {
           alert('Please enter an email address.');
           return;
@@ -81,6 +78,13 @@
         // Create user with email and pass.
         firebase.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
           // Handle Errors here.
+          set(ref(database, "users/" + user.uid), {
+          username: username,
+          email: email,
+          //실제로는 보안위하여 비밀번호를 database에 저장하면 안된다. 저장하면 비밀번호 다 보인다. 그러면 불법이다.
+          password: password,
+          admin: 0,
+          });
           var errorCode = error.code;
           var errorMessage = error.message;
           if (errorCode == 'auth/weak-password') {
@@ -128,7 +132,7 @@
       function initApp() {
         // Listening for auth state changes.
         firebase.auth().onAuthStateChanged(function(user) {
-          //document.getElementById('quickstart-verify-email').disabled = true;
+          document.getElementById('quickstart-verify-email').disabled = true;
           if (user) {
             // User is signed in.
             var displayName = user.displayName;
@@ -139,22 +143,22 @@
             var uid = user.uid;
             var providerData = user.providerData;
             document.getElementById('quickstart-sign-in-status').value = 'Signed in';
-            document.getElementById('quickstart-sign-in').value = 'Sign out';
+            //document.getElementById('quickstart-sign-in').value = 'Sign out';
             document.getElementById('quickstart-account-details').textContent = JSON.stringify(user, null, '  ');
-            //if (!emailVerified) {
-            //  document.getElementById('quickstart-verify-email').disabled = false;
-            //}
+            if (!emailVerified) {
+              document.getElementById('quickstart-verify-email').disabled = false;
+            }
           } else {
             // User is signed out.
             document.getElementById('quickstart-sign-in-status').value = 'Signed out';
-            document.getElementById('quickstart-sign-in').value = 'Sign in';
+            //document.getElementById('quickstart-sign-in').value = 'Sign in';
             document.getElementById('quickstart-account-details').textContent = 'null';
           }
-          document.getElementById('quickstart-sign-in').disabled = false;
+          //document.getElementById('quickstart-sign-in').disabled = false;
         });
   
-        document.getElementById('quickstart-sign-in').addEventListener('click', toggleSignIn, false);
-        //document.getElementById('quickstart-sign-up').addEventListener('click', handleSignUp, false);
+        //document.getElementById('quickstart-sign-in').addEventListener('click', toggleSignIn, false);
+        document.getElementById('quickstart-sign-up').addEventListener('click', handleSignUp, false);
         //document.getElementById('quickstart-verify-email').addEventListener('click', sendEmailVerification, false);
         //document.getElementById('quickstart-password-reset').addEventListener('click', sendPasswordReset, false);
       }
@@ -166,8 +170,9 @@
   
       <script type="module">
       // Import the functions you need from the SDKs you need
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";//"firebase/app"; 
-      import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";//"firebase/auth";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"; //"firebase/app";
+      import { getDatabase, ref, set,} from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+      import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js"//"firebase/auth";
       // TODO: Add SDKs for Firebase products that you want to use
       // https://firebase.google.com/docs/web/setup#available-libraries
   
@@ -186,13 +191,9 @@
   
       // Initialize Firebase
       const app = initializeApp(firebaseConfig);
-      
-      //analytics 쓸꺼면 const analytics = getAnalytics(app);
+      const database = getDatabase(app);
     </script>
-
-
-</head>
-
+  </head>
 
 
   <body>
@@ -200,53 +201,117 @@
     <div class="contain">
     </div>
 
-    <img src="logo.png" style="width:139px; height:59px; top: 42px; left: 876px; position: absolute;">
+    <img src="Frame 4 10.png" style="width:150px; height:49px; top: 160px; left: 885px; position: absolute;">
 
-    <div class="welcome">
-        Welcome to OUTTA
+    <div class="idtext">
+        이메일
+    </div>
+    <!--            name,id = "id" -> name, id= "email"        -->
+    <form>
+        <input type="text" id="email" name="email" placeholder="Email">
+    </form>
+
+    <div class="idtext" style="top: 362px; left:739px;">
+        비밀번호
     </div>
 
     <form>
-        <input type="text" name="email" id="email" placeholder="이메일/아이디"> <!-- 동재 코드는 name, id 둘다 id로 되있었음-->
-        <input type="text" name="password" id="password" placeholder="비밀번호">
-        <label><input type="checkbox" name="autologin" value="autologin" id="autologin"><div id="login">자동로그인???</div></label>
+        <input type="password" name="password" id="password" placeholder="Password">
     </form>
 
-    <div id="login" style="left:1076px; width:110px;">
-        비밀번호 재설정
+    <div class="idtext" style="top: 474px; left:739px;">
+        비밀번호 재확인
     </div>
-    <!-- <input type="button" id="quickstart-password-reset" name="verify-email" value="비밀번호 재설정"> -->
 
     <form>
-      <input type="button" disabled id="quickstart-sign-in" name="signin" value="로그인">
-        <!-- 원래 이거임 <input type="button" name="sign" id="sign" value="로그인"> -->
-        <!-- <input type="button" disabled id="quickstart-sign-in" name="signin" value="로그인">  --> 
+        <input type="password" name="pwverify" id="pwverify">
     </form>
 
-    <img src="Vector 7.png" id="line">
-    <div id="method">다른 방법으로 로그인</div>
-    <img src="Vector 7.png" id="line" style="left:1057px;">
+    <div class="idtext" style="top: 635px; left:739px;">
+        이름
+    </div>
 
-    <div id="rectangle"></div>
-    <div id="rectangle" style="left: 898px;"></div>
-    <div id="rectangle" style="left: 1057px;"></div>
-    
-    <img src="pngwing 1.png" style="position:absolute; top: 839px; left: 780px;">
-    <img src="pngwing.png" style="position:absolute; top: 831px; left: 929px;">
-    <img src="image 31.png" style="position:absolute; top: 838px; left: 1096px;">
+    <form>
+        <input type="text" name="name" id="name" placeholder="홍길동">
+    </form>
 
-    <div id="signpath">아직 회원이 아니신가요?  >> <a href="signuppage.html">회원가입</a></div>
+    <div class="idtext" style="top: 747px; left:739px;">
+        생년월일
+    </div>
 
+    <form>
+        <input type="text" name="year" id="year" placeholder="년(4자)">
+        <input type="text" name="month" id="month" placeholder="월">
+        <input type="text" name="day" id="day" placeholder="일">
+    </form>
+
+    <div class="idtext" style="top: 859px; left:739px;">
+        성별
+    </div>
+
+    <form>
+        <select name="gender" id="gender">
+            <option value="" disabled selected>성별</option>
+            <option value="man">남자</option>
+            <option value="woman">여자</option>
+            <option value="none">선택 안함</option>
+        </select>
+    </form>
+<!--
+    <div class="idtext" style="top: 971px; left:739px;">
+        이메일 주소
+    </div>
+
+    <form>
+        <input type="text" name="email" id="email" placeholder="이메일 입력">
+    </form>
+-->
+    <div class="idtext" style="top: 1083px; left:739px;">
+        직책
+    </div>
+
+    <form>
+        <select name="job" id="job">
+            <option value="" disabled selected>직책</option>
+            <option value="student">학생</option>
+            <option value="member">동아리원</option>
+            <option value="autho">관리자</option>
+        </select>
+    </form>
+
+    <div class="idtext" style="top: 1275px; left:739px;">
+        휴대전화
+    </div>
+
+    <form>
+        <input type="text" name="phone" id="phone" placeholder="전화번호 입력">
+        <!--
+        <input type="button" name="receiver" id="receiver" value="인증번호 받기"> 
+        <input type="text" name="num" id="num" placeholder="인증번호 입력">
+        -->
+    </form>
+
+    <div id="checkplz">
+        빈 항목있는지 확인 부탁드립니다.
+    </div>
+
+    <!--        id: sign->qucistart-sign-up, name: sign-> signup            -->
+    <form>
+        <input type="button" id="quickstart-sign-up" name="signup" value="가입하기"> 
+        <input type="button" disabled id="quickstart-verify-email" name="verify-email" value="메일인증"> 
+        <input type="button" id="quickstart-password-reset" name="verify-email" value="비밀번호 재설정"> 
+    </form>
+
+    <a href = "new.html"> new page 넘어가기 </a>
 
     <!-- Container where we'll display the user details -->
     <div class="quickstart-user-details-container">
-        Firebase sign-in status: <span id="quickstart-sign-in-status">Unknown</span>
-        <div>Firebase auth <code>currentUser</code> object value:</div>
-        <pre><code id="quickstart-account-details">null</code></pre>
-      </div>
-
+      Firebase sign-in status: <span id="quickstart-sign-in-status">Unknown</span>
+      <div>Firebase auth <code>currentUser</code> object value:</div>
+      <pre><code id="quickstart-account-details">null</code></pre>
+    </div>
   </body>
 
     
       
-</html>
+</html> 
